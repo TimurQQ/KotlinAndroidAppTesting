@@ -12,11 +12,19 @@ import android.widget.TextView
 import java.util.concurrent.*
 
 class MainActivity : AppCompatActivity() {
-    lateinit var pattern:String
+     var pattern:String = ""
+         set(value) {
+             Log.d("SETTER", "Set Value")
+             field = "Sum of values between 2 and $value equals "
+        }
+        get() {
+            Log.d("GETTER", "Get Value")
+            return field
+        }
     lateinit var textResult: TextView
     lateinit var callable: Callable<Long>
     lateinit var future: FutureTask<*>
-    private var x:Long = 0
+    private var x:Long by PosValueDelegate()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -45,7 +53,7 @@ class MainActivity : AppCompatActivity() {
             @SuppressLint("SetTextI18n")
             override fun onTextChanged(s:CharSequence, start:Int, before:Int, count:Int) {
                 x = s.toString().toLong()
-                pattern = "Sum of values between 2 and $x equals "
+                pattern = s.toString()
                 textResult.text = pattern
             }
             override fun afterTextChanged(s: Editable) {}
@@ -62,7 +70,9 @@ class MainActivity : AppCompatActivity() {
                     override fun run() {
                         synchronized(this) {
                             callable = getDataFromCallable()
+                            Log.d("LATEINIT", ::future.isInitialized.toString())
                             future = FutureTask(callable)
+                            Log.d("LATEINIT", ::future.isInitialized.toString())
                             Thread(future).start()
                             try {
                                 textResult.text = pattern + future.get()
